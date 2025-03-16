@@ -1,0 +1,781 @@
+<!DOCTYPE html>
+<html lang="en-US" dir="ltr">
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>ReThinkLab | Experiment and rethink how you learn</title>
+
+    <link href="assets/css/theme.css" rel="stylesheet" />
+    <link rel="icon" type="image/svg+xml" href="/favicon/bp.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta charset="UTF-8" />
+
+    <style> 
+
+  
+  
+      /* Default to light mode */
+      body {
+        background-color: white;
+        color: black;
+      }
+      /* Dark mode styles */
+      @media (prefers-color-scheme: dark) {
+        body {
+          background-color: #121212;
+          color: white;
+        }
+      }
+
+      /* Custom chat button styles */
+      #chat-button {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        background-color: #007bff;
+        color: white;
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-size: 30px;
+        cursor: pointer;
+        border: none;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        z-index: 9999;
+      }
+
+      #chat-button:hover {
+        background-color: #0056b3;
+      }
+
+      /* Chat window styles */
+      .chat-container {
+        position: fixed;
+        bottom: 0;
+        right: 0;
+        width: 350px;
+        height: 80vh;
+        z-index: 9999;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        border-radius: 8px;
+        overflow: hidden;
+      }
+
+      /* Refined close button styles */
+      .close-button {
+        position: absolute;
+        top: 15px;
+        right: 16px;
+        background-color: white;
+        color: #444;
+        font-size: 20px;
+        border: none;
+        padding: 5px;
+        cursor: pointer;
+        z-index: 10000;
+        transition: transform 0.2s ease, color 0.2s ease;
+        
+      }
+
+      .close-button:hover {
+        color: #e63946;
+        transform: scale(1.2);
+      }
+
+      .close-button:focus {
+        outline: none;
+      }
+
+      /* Tooltip styles */
+      #help-tooltip {
+        position: fixed;
+        bottom: 90px; /* Position tooltip above the chat button */
+        right: 40px; /* Slightly to the left of the button */
+        background-color: #007bff;
+        color: white;
+        padding: 10px 20px;
+        border-radius: 20px;
+        font-size: 14px;
+        font-family: Arial, sans-serif;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        opacity: 0; /* Start invisible */
+        animation: fadeInOut 40s linear forwards; /* Animate fade-in and fade-out */
+        z-index: 10000;
+      }
+
+      /* Tooltip animation keyframes */
+      @keyframes fadeInOut {
+        0% {
+          opacity: 0;
+        }
+        5% {
+          opacity: 1;
+        }
+        80% {
+          opacity: 1;
+        }
+        100% {
+          opacity: 0;
+        }
+      }
+    
+      :root {
+        --text: #060315;
+        --background: #ffffff;
+        --primary: #1d00fe;
+        --secondary: #dd3afe;
+        --accent: #1309ff;
+        --footer-bg: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+      }
+
+      body {
+        color: var(--text);
+        background: var(--background);
+      }
+
+      .btn-warning:hover,
+      .btn-warning:active,
+      .btn-warning:focus {
+        background-color: #7e55d7 !important;
+        border-color: #7e55d7 !important;
+      }
+
+      .btn-secondary-outline {
+        color: #7e55d7 !important;
+        border-color: #7e55d7 !important;
+      }
+
+      .btn-secondary-outline:hover,
+      .btn-secondary-outline:active,
+      .btn-secondary-outline:focus {
+        color: #7e55d7 !important;
+        border-color: #7e55d7 !important;
+        background-color: rgba(126, 85, 215, 0.1) !important;
+      }
+
+      .btn-warning {
+        background-color: var(--primary) !important;
+        border-color: var(--primary) !important;
+        color: var(--background) !important;
+      }
+
+      .text-warning {
+        color: var(--primary) !important;
+      }
+
+      .text-secondary {
+        color: var(--text) !important;
+        opacity: 0.8;
+      }
+
+      .text-info {
+        color: var(--secondary) !important;
+      }
+
+      .btn-link.text-warning {
+        color: var(--primary) !important;
+      }
+
+      .link-900 {
+        color: var(--text) !important;
+      }
+
+      .btn {
+        border-radius: 50px !important;
+        padding-left: 2rem !important;
+        padding-right: 2rem !important;
+      }
+
+      .navbar-brand img {
+        height: 40px;
+        width: auto;
+        object-fit: contain;
+        padding: 0;
+      }
+
+      .footer-logo {
+        height: 60px;
+        width: auto;
+        object-fit: contain;
+      }
+
+      .step-indicator {
+        cursor: pointer;
+        transition: all 0.3s ease;
+      }
+      .step-indicator:hover {
+        opacity: 0.8 !important;
+      }
+      .step-indicator.active {
+        color: var(--primary) !important;
+        opacity: 1 !important;
+      }
+      .step-content {
+        opacity: 0;
+        display: none;
+        transition: opacity 0.3s ease;
+      }
+      .step-content.active {
+        opacity: 1;
+        display: block;
+      }
+
+      .text-white-50 {
+        transition: color 0.2s ease;
+      }
+      .text-white-50:hover {
+        color: #ffffff !important;
+      }
+
+      .footer-gradient {
+        background: var(--footer-bg);
+      }
+
+      .social-icon {
+        opacity: 0.7;
+        transition: opacity 0.2s ease;
+      }
+      .social-icon:hover {
+        opacity: 1;
+      }
+    </style>
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        const stepIndicators = document.querySelectorAll(".step-indicator");
+        const stepContents = document.querySelectorAll(".step-content");
+
+        stepIndicators.forEach((indicator) => {
+          indicator.addEventListener("click", (e) => {
+            e.preventDefault();
+            const step = indicator.getAttribute("data-step");
+
+            // Update indicators
+            stepIndicators.forEach((si) => {
+              si.style.color = "var(--text)";
+              si.style.opacity = "0.5";
+              si.classList.remove("active");
+            });
+            indicator.style.color = "var(--primary)";
+            indicator.style.opacity = "1";
+            indicator.classList.add("active");
+
+            // Update content
+            stepContents.forEach((content) => {
+              content.classList.remove("active");
+              content.style.display = "none";
+            });
+            document.getElementById(`step${step}`).classList.add("active");
+            document.getElementById(`step${step}`).style.display = "block";
+          });
+        });
+      });
+    </script>
+  </head>
+
+  <body>
+    <!-- Tooltip -->
+    <div id="help-tooltip">How can I help you?</div>
+
+    <!-- Chat Button -->
+    <button id="chat-button" onclick="openBotpressChat()">🤖</button>
+
+    <!-- Chatbot Embed Script -->
+    <script>
+      function openBotpressChat() {
+        // Remove the tooltip if openBotpressChat is triggered
+        const tooltip = document.getElementById("help-tooltip");
+        if (tooltip) {
+          tooltip.remove();
+        }
+
+        // Create the container for the chat window and close button
+        var chatContainer = document.createElement("div");
+        chatContainer.classList.add("chat-container");
+
+        // Create the iframe dynamically
+        var iframe = document.createElement("iframe");
+        iframe.src =
+          "https://cdn.botpress.cloud/webchat/v2.2/shareable.html?configUrl=https://files.bpcontent.cloud/2025/01/24/15/20250124155854-KHZ2TK68.json";
+        iframe.style.width = "100%";
+        iframe.style.height = "100%";
+        iframe.style.border = "none";
+
+        // Create the close button inside the chat window
+        var closeButton = document.createElement("button");
+        closeButton.innerHTML = "&#10005;"; // Close button icon (✖)
+        closeButton.classList.add("close-button");
+        closeButton.onclick = function () {
+          chatContainer.remove(); // Close the chat by removing the entire container (iframe + close button)
+        };
+
+        // Append iframe and close button to the chat container
+        chatContainer.appendChild(iframe);
+        chatContainer.appendChild(closeButton);
+
+        // Append the chat container to the body
+        document.body.appendChild(chatContainer);
+      }
+    </script>
+    <main class="main" id="top">
+      <nav
+        class="navbar navbar-expand-lg navbar-light sticky-top"
+        data-navbar-on-scroll="data-navbar-on-scroll"
+      >
+        <div class="container">
+          <a class="navbar-brand" href="index.html"
+            ><img src="assets/img/logo1.png" alt="ReThinkLab"
+          /></a>
+          <button
+            class="navbar-toggler"
+            type="button"
+            data-bs-toggle="collapse"
+            data-bs-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent"
+            aria-expanded="false"
+            aria-label="Toggle navigation"
+          >
+            <span class="navbar-toggler-icon"> </span>
+          </button>
+          <div
+            class="collapse navbar-collapse border-top border-lg-0 mt-4 mt-lg-0"
+            id="navbarSupportedContent"
+          >
+            <ul class="navbar-nav ms-auto">
+              <li class="nav-item">
+                <a class="nav-link" aria-current="page" href="#home">Home</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" aria-current="page" href="#feature"
+                  >Features</a
+                >
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" aria-current="page" href="#about-us"
+                  >About Us</a
+                >
+              </li>
+            </ul>
+            <div class="d-flex ms-lg-4">
+              <a class="btn btn-secondary-outline" href="login.php">Log In</a
+              ><a class="btn btn-warning ms-3" href="registration.php" style="">Sign Up</a>
+            </div>
+          </div>
+        </div>
+      </nav>
+      <section class="pt-7" id="home">
+        <div class="container">
+          <div class="row align-items-center">
+            <div class="col-md-6 text-md-start text-center py-6">
+              <h1 class="mb-4 fs-9 fw-bold">
+                Unlock Your Full Potential with ReThinkLab
+              </h1>
+              <p class="mb-6 lead text-secondary">
+                ReThinkLab helps you boost your brainpower,
+                <br class="d-none d-xl-block" />learning efficiency, and memory
+                through data-driven<br class="d-none d-xl-block" />
+                insights and automation.
+              </p>
+              <div class="text-center text-md-start">
+                <a class="btn btn-warning me-3 btn-lg" href="registration.php" role="button"
+                  >Take the Assessment</a
+                >
+              </div>
+            </div>
+            <div class="col-md-6 text-end">
+              <img
+                class="pt-7 pt-md-0 img-fluid"
+                src="assets/img/hero/hero-img.png"
+                alt=""
+              />
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="pt-5 pt-md-9 mb-6" id="feature">
+        <div class="container">
+          <p
+            class="text-center"
+            style="
+              color: var(--primary);
+              font-weight: 600;
+              text-transform: uppercase;
+              letter-spacing: 1px;
+              font-size: 1.3rem;
+            "
+          >
+            FEATURES
+          </p>
+          <h1 class="fs-9 fw-bold mb-4 text-center">
+            Boost Your Learning Efficiency
+          </h1>
+          <p class="text-center mb-5 text-secondary fs-1">
+            ReThinkLab helps you understand your brain type and learning style
+            through personalized<br class="d-none d-xl-block" />
+            assessments, empowering you to optimize your learning approach.
+          </p>
+
+          <div
+            class="d-flex justify-content-center align-items-center gap-4 mb-7"
+          >
+            <a
+              href="#step1"
+              class="d-flex align-items-center gap-2 text-decoration-none step-indicator active"
+              data-step="1"
+              style="color: var(--primary)"
+            >
+              <img
+                src="assets/img/features/assessment.png"
+                width="24"
+                alt="Brain"
+              />
+              <span class="fw-bold">Step 1: Take Assessment</span>
+            </a>
+            <a
+              href="#step2"
+              class="d-flex align-items-center gap-2 text-decoration-none step-indicator"
+              data-step="2"
+              style="color: var(--text); opacity: 0.5"
+            >
+
+            <img
+            src="assets/img/features/assessment.png"
+            width="24"
+            alt="Brain"
+          />
+              <!-- <img
+                src="assets/img/features/result.png"
+                width="24"
+                alt="Results"
+              /> -->
+              <span class="fw-bold">Step 2: View Results</span>
+            </a>
+            <a
+              href="#step3"
+              class="d-flex align-items-center gap-2 text-decoration-none step-indicator"
+              data-step="3"
+              style="color: var(--text); opacity: 0.5"
+            >
+              <img
+                src="assets/img/features/search.png"
+                width="24"
+                alt="Resources"
+              />
+              <span class="fw-bold">Step 3: Personalized Resources</span>
+            </a>
+          </div>
+
+          <div id="step1" class="step-content active">
+            <div class="row align-items-center">
+              <div class="col-lg-6">
+                <img
+                  class="img-fluid"
+                  src="assets/img/features/assessment.png"
+                  alt="Assessment Interface"
+                />
+              </div>
+              <div class="col-lg-6">
+                <h2 class="fs-4 fw-bold mb-4">
+                  Step 1: Take the Brain & Learning Style Assessments
+                </h2>
+                <p class="mb-4 text-secondary">
+                  Start by taking two simple assessments: one to determine your
+                  brain type (Right Brain, Left Brain, Mixed) and another to
+                  identify your preferred learning style (Visual, Auditory,
+                  Read/Write, Kinaesthetic).
+                </p>
+                <ul class="list-unstyled">
+                  <li class="mb-3 d-flex align-items-center gap-2">
+                    <span style="color: var(--primary)">✓</span>
+                    <span
+                      >Complete both the Brain Type and Learning Style
+                      quizzes.</span
+                    >
+                  </li>
+                  <li class="mb-3 d-flex align-items-center gap-2">
+                    <span style="color: var(--primary)">✓</span>
+                    <span
+                      >Answer easy-to-understand questions that give us insights
+                      into how you learn best.</span
+                    >
+                  </li>
+                  <li class="mb-3 d-flex align-items-center gap-2">
+                    <span style="color: var(--primary)">✓</span>
+                    <span
+                      >The assessments are quick and take only 10-15 minutes to
+                      complete.</span
+                    >
+                  </li>
+                </ul>
+                <a class="btn btn-warning mt-4" href="#!" role="button"
+                  >Take the Assessment</a
+                >
+              </div>
+            </div>
+          </div>
+
+          <div id="step2" class="step-content">
+            <div class="row align-items-center mt-7">
+              <div class="col-lg-6 order-lg-2">
+                <img
+                  class="img-fluid"
+                  src="assets/img/features/search.png"
+                  alt="Results Inter"
+                />
+              </div>
+              <div class="col-lg-6 order-lg-1">
+                <h2 class="fs-4 fw-bold mb-4">
+                  Step 2: View Your Personalized Results
+                </h2>
+                <p class="mb-4 text-secondary">
+                  Get detailed insights into how your brain works and your
+                  preferred learning methods. Our analysis provides a
+                  comprehensive understanding of your cognitive strengths and
+                  learning preferences.
+                </p>
+                <ul class="list-unstyled">
+                  <li class="mb-3 d-flex align-items-center gap-2">
+                    <span style="color: var(--primary)">✓</span>
+                    <span
+                      >Discover your dominant brain type and its
+                      characteristics.</span
+                    >
+                  </li>
+                  <li class="mb-3 d-flex align-items-center gap-2">
+                    <span style="color: var(--primary)">✓</span>
+                    <span
+                      >Understand your primary and secondary learning style
+                      preferences.</span
+                    >
+                  </li>
+                  <li class="mb-3 d-flex align-items-center gap-2">
+                    <span style="color: var(--primary)">✓</span>
+                    <span
+                      >Receive personalized recommendations for optimal learning
+                      strategies.</span
+                    >
+                  </li>
+                </ul>
+                <a class="btn btn-warning mt-4" href="#!" role="button"
+                  >View Sample Results</a
+                >
+              </div>
+            </div>
+          </div>
+
+          <div id="step3" class="step-content">
+            <div class="row align-items-center mt-7">
+              <div class="col-lg-6">
+                <img
+                  class="img-fluid"
+                  src="assets/img/features/search.png"
+                  alt="Search Interface"
+                />
+              </div>
+              <div class="col-lg-6">
+                <h2 class="fs-4 fw-bold mb-4">
+                  Step 3: A Custom Search Engine Based on Your Learning Style
+                </h2>
+                <p class="mb-4 text-secondary">
+                  Based on your results, we'll provide you with a personalized
+                  learning experience. Our custom search engine will recommend
+                  resources and strategies tailored to your unique brain type
+                  and learning preferences.
+                </p>
+                <ul class="list-unstyled">
+                  <li class="mb-3 d-flex align-items-center gap-2">
+                    <span style="color: var(--primary)">✓</span>
+                    <span
+                      >Access resources curated to your brain and learning
+                      style.</span
+                    >
+                  </li>
+                  <li class="mb-3 d-flex align-items-center gap-2">
+                    <span style="color: var(--primary)">✓</span>
+                    <span
+                      >Find study materials that align with how you process and
+                      retain information.</span
+                    >
+                  </li>
+                  <li class="mb-3 d-flex align-items-center gap-2">
+                    <span style="color: var(--primary)">✓</span>
+                    <span
+                      >Receive personalized recommendations to boost your
+                      learning efficiency.</span
+                    >
+                  </li>
+                </ul>
+                <a class="btn btn-warning mt-4" href="#!" role="button"
+                  >Explore Resources</a
+                >
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="pt-5" id="about-us">
+        <div class="container">
+          <div class="row">
+            <div class="col-lg-6">
+              <p
+                class="text-center"
+                style="
+                  color: var(--primary);
+                  font-weight: 600;
+                  font-size: 1.3rem;
+                  text-transform: uppercase;
+                  letter-spacing: 1px;
+                "
+              >
+                ABOUT US
+              </p>
+              <!--<h5 class="text-secondary">Effortless Validation for</h5>-->
+              <h2 class="mb-2 fs-7 fw-bold">Welcome to ReThinkLab</h2>
+              <p class="mb-4 fw-medium text-secondary">
+                At ReThinkLab, we are dedicated to enhancing brain function,
+                learning efficiency, and memory. Our platform offers
+                personalized learning resources based on your unique brain type
+                and learning style, helping you unlock your full potential.
+              </p>
+              <!--<h4 class="fs-1 fw-bold">Accessory makers</h4>-->
+              <ul class="list-unstyled">
+                <li
+                  class="mb-4 fw-medium text-secondary"
+                  style="list-style-type: none"
+                >
+                  <span
+                    style="
+                      display: inline-block;
+                      width: 10px;
+                      height: 10px;
+                      background-color: blue;
+                      border-radius: 50%;
+                      margin-right: 10px;
+                    "
+                  ></span>
+                  Personalized learning experiences based on your brain type and
+                  learning style.
+                </li>
+                <li
+                  class="mb-4 fw-medium text-secondary"
+                  style="list-style-type: none"
+                >
+                  <span
+                    style="
+                      display: inline-block;
+                      width: 10px;
+                      height: 10px;
+                      background-color: blue;
+                      border-radius: 50%;
+                      margin-right: 10px;
+                    "
+                  ></span>
+                  Customized search engine to find the best resources for you.
+                </li>
+                <li
+                  class="mb-4 fw-medium text-secondary"
+                  style="list-style-type: none"
+                >
+                  <span
+                    style="
+                      display: inline-block;
+                      width: 10px;
+                      height: 10px;
+                      background-color: blue;
+                      border-radius: 50%;
+                      margin-right: 10px;
+                    "
+                  ></span>
+                  A platform designed to enhance learning efficiency and memory
+                  retention.
+                </li>
+              </ul>
+            </div>
+            <div class="col-lg-6">
+              <img
+                class="img-fluid"
+                src="assets/img/validation/validation.png"
+                alt=""
+              />
+            </div>
+          </div>
+        </div>
+    </main>
+
+    <footer class="footer-gradient text-white py-5">
+      <div class="container">
+        <div class="row">
+          <div class="col-lg-4 mb-4">
+            <h4 class="text-white fw-bold mb-3">About ReThinkLab</h4>
+            <p class="text-white mb-0">
+              ReThinkLab is dedicated to helping you improve brain function and learning efficiency through personalized assessments and resources designed for your brain type and learning style.
+            </p>
+          </div>
+          <div class="col-lg-4 mb-4 text-center">
+            <h4 class="text-white fw-bold mb-3">Important Links</h4>
+            <ul class="list-unstyled mb-0">
+              <li class="mb-2">
+                <a href="#!" class="text-decoration-none text-white">Learn more about us</a>
+              </li>
+              <li class="mb-2">
+                <a href="/ReThinkLab/Terms and Conditions/public/index.html" class="text-decoration-none text-white">Terms & Conditions</a>
+              </li>
+              <li class="mb-2">
+                <a href="/ReThinkLab/Privacy Policy/public/index.html" class="text-decoration-none text-white">Privacy Policy</a>
+              </li>
+            </ul>
+          </div>
+          <div class="col-lg-4 mb-4 text-lg-end">
+            <h4 class="text-white fw-bold mb-3">Contact</h4>
+            <ul class="list-unstyled mb-0">
+              <li class="mb-2 text-white">
+                <i class="fas fa-map-marker-alt me-2"></i>
+                Mumbai
+              </li>
+
+            </ul>
+          </div>
+        </div>
+        <hr class="border-white opacity-25 my-4">
+        <div class="row align-items-center">
+          <div class="col-md-6 text-center text-md-start mb-3 mb-md-0">
+            <p class="text-white mb-0">Made by TheNextBigThing
+            </p>
+          </div>
+          <div class="col-md-6 text-center text-md-end">
+            <a href="#!" class="text-white text-decoration-none me-3 social-icon">
+              <i class="fab fa-facebook-f"></i>
+            </a>
+            <a href="#!" class="text-white text-decoration-none me-3 social-icon">
+              <i class="fab fa-twitter"></i>
+            </a>
+            <a href="#!" class="text-white text-decoration-none me-3 social-icon">
+              <i class="fab fa-linkedin-in"></i>
+            </a>
+            <a href="#!" class="text-white text-decoration-none social-icon">
+              <i class="fab fa-instagram"></i>
+            </a>
+          </div>
+        </div>
+      </div>
+    </footer>
+
+    <script src="vendors/@popperjs/popper.min.js"></script>
+    <script src="vendors/bootstrap/bootstrap.min.js"></script>
+    <script src="vendors/is/is.min.js"></script>
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=window.scroll"></script>
+    <script src="vendors/fontawesome/all.min.js"></script>
+    <script src="assets/js/theme.js"></script>
+
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&amp;family=Volkhov:wght@700&amp;display=swap"
+      rel="stylesheet"
+    />
+  </body>
+</html>
